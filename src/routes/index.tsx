@@ -251,7 +251,7 @@ function ChatbotPreview() {
           </div>
           <Badge variant="secondary" className="text-xs">Gemini</Badge>
         </div>
-        <div className="flex h-[420px] flex-col gap-3 overflow-y-auto p-5">
+        <div className="flex h-420px flex-col gap-3 overflow-y-auto p-5">
           {messages.slice(0, visible).map((m, i) => (
             <div
               key={i}
@@ -421,6 +421,16 @@ const TESTIMONIALS = [
   {
     name: "Yogesh Hande",
     role: "AI, 7th Sem",
+    text: "The attendance warnings saved me twice this semester. Genuinely useful.",
+  },
+  {
+    name: "Bhoomi Ingale",
+    role: "CSE, 7th Sem",
+    text: "The attendance warnings saved me twice this semester. Genuinely useful.",
+  },
+  {
+    name: "Shrawani Ahirkar",
+    role: "CSE, 3rd Sem",
     text: "The attendance warnings saved me twice this semester. Genuinely useful.",
   },
 ];
