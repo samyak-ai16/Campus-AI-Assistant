@@ -59,10 +59,7 @@ export const Route = createFileRoute("/")({
 function AnimatedBackground() {
   return (
     <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
-      <div
-        className="absolute inset-0"
-        style={{ background: "var(--gradient-hero)" }}
-      />
+      <div className="absolute inset-0" style={{ background: "var(--gradient-hero)" }} />
       <div className="absolute -top-40 -left-20 h-500px w-500px rounded-full bg-primary/25 blur-3xl animate-pulse" />
       <div
         className="absolute top-1/3 -right-32 h-600px w-600px rounded-full blur-3xl animate-pulse"
@@ -77,12 +74,7 @@ function AnimatedBackground() {
         xmlns="http://www.w3.org/2000/svg"
       >
         <defs>
-          <pattern
-            id="grid"
-            width="48"
-            height="48"
-            patternUnits="userSpaceOnUse"
-          >
+          <pattern id="grid" width="48" height="48" patternUnits="userSpaceOnUse">
             <path d="M 48 0 L 0 0 0 48" fill="none" stroke="currentColor" strokeWidth="1" />
           </pattern>
         </defs>
@@ -106,11 +98,21 @@ function Navbar() {
           <span className="text-lg font-semibold tracking-tight">CampusAI</span>
         </a>
         <nav className="hidden items-center gap-8 md:flex">
-          <a href="#features" className="text-sm text-muted-foreground hover:text-foreground">Features</a>
-          <a href="#stats" className="text-sm text-muted-foreground hover:text-foreground">Stats</a>
-          <a href="#testimonials" className="text-sm text-muted-foreground hover:text-foreground">Testimonials</a>
-          <a href="#faq" className="text-sm text-muted-foreground hover:text-foreground">FAQ</a>
-          <a href="#contact" className="text-sm text-muted-foreground hover:text-foreground">Contact</a>
+          <a href="#features" className="text-sm text-muted-foreground hover:text-foreground">
+            Features
+          </a>
+          <a href="#stats" className="text-sm text-muted-foreground hover:text-foreground">
+            Stats
+          </a>
+          <a href="#testimonials" className="text-sm text-muted-foreground hover:text-foreground">
+            Testimonials
+          </a>
+          <a href="#faq" className="text-sm text-muted-foreground hover:text-foreground">
+            FAQ
+          </a>
+          <a href="#contact" className="text-sm text-muted-foreground hover:text-foreground">
+            Contact
+          </a>
         </nav>
         <div className="flex items-center gap-2">
           <Button variant="ghost" size="sm" asChild>
@@ -149,8 +151,8 @@ function Hero() {
             </span>
           </h1>
           <p className="mt-6 max-w-xl text-lg text-muted-foreground">
-            CampusAI answers your questions, tracks attendance, surfaces the right lecture at the right
-            time, and keeps every notice, syllabus, and exam one message away.
+            CampusAI answers your questions, tracks attendance, surfaces the right lecture at the
+            right time, and keeps every notice, syllabus, and exam one message away.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <Button
@@ -216,10 +218,13 @@ function ChatbotPreview() {
   useEffect(() => {
     if (visible >= messages.length) return;
     setTyping(true);
-    const t = setTimeout(() => {
-      setTyping(false);
-      setVisible((v) => v + 1);
-    }, visible === 0 ? 600 : 1400);
+    const t = setTimeout(
+      () => {
+        setTyping(false);
+        setVisible((v) => v + 1);
+      },
+      visible === 0 ? 600 : 1400,
+    );
     return () => clearTimeout(t);
   }, [visible]);
 
@@ -249,7 +254,9 @@ function ChatbotPreview() {
               </p>
             </div>
           </div>
-          <Badge variant="secondary" className="text-xs">Gemini</Badge>
+          <Badge variant="secondary" className="text-xs">
+            Gemini
+          </Badge>
         </div>
         <div className="flex h-420px flex-col gap-3 overflow-y-auto p-5">
           {messages.slice(0, visible).map((m, i) => (
@@ -259,15 +266,9 @@ function ChatbotPreview() {
             >
               <div
                 className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-sm ${
-                  m.role === "user"
-                    ? "text-white"
-                    : "bg-muted text-foreground"
+                  m.role === "user" ? "text-white" : "bg-muted text-foreground"
                 }`}
-                style={
-                  m.role === "user"
-                    ? { background: "var(--gradient-brand)" }
-                    : undefined
-                }
+                style={m.role === "user" ? { background: "var(--gradient-brand)" } : undefined}
                 dangerouslySetInnerHTML={{
                   __html: m.text.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>"),
                 }}
@@ -278,8 +279,14 @@ function ChatbotPreview() {
             <div className="flex justify-start">
               <div className="flex gap-1 rounded-2xl bg-muted px-4 py-3">
                 <span className="h-2 w-2 animate-bounce rounded-full bg-muted-foreground/60" />
-                <span className="h-2 w-2 animate-bounce rounded-full bg-muted-foreground/60" style={{ animationDelay: "0.15s" }} />
-                <span className="h-2 w-2 animate-bounce rounded-full bg-muted-foreground/60" style={{ animationDelay: "0.3s" }} />
+                <span
+                  className="h-2 w-2 animate-bounce rounded-full bg-muted-foreground/60"
+                  style={{ animationDelay: "0.15s" }}
+                />
+                <span
+                  className="h-2 w-2 animate-bounce rounded-full bg-muted-foreground/60"
+                  style={{ animationDelay: "0.3s" }}
+                />
               </div>
             </div>
           )}
@@ -343,7 +350,9 @@ function Features() {
     <section id="features" className="relative px-6 py-24">
       <div className="mx-auto max-w-7xl">
         <div className="mx-auto max-w-2xl text-center">
-          <Badge variant="secondary" className="mb-4">Features</Badge>
+          <Badge variant="secondary" className="mb-4">
+            Features
+          </Badge>
           <h2 className="text-4xl font-bold tracking-tight sm:text-5xl">
             Everything a student needs, in one place
           </h2>
@@ -440,10 +449,10 @@ function Testimonials() {
     <section id="testimonials" className="px-6 py-24">
       <div className="mx-auto max-w-7xl">
         <div className="mx-auto max-w-2xl text-center">
-          <Badge variant="secondary" className="mb-4">Testimonials</Badge>
-          <h2 className="text-4xl font-bold tracking-tight sm:text-5xl">
-            Students love CampusAI
-          </h2>
+          <Badge variant="secondary" className="mb-4">
+            Testimonials
+          </Badge>
+          <h2 className="text-4xl font-bold tracking-tight sm:text-5xl">Students love CampusAI</h2>
         </div>
         <div className="mt-14 grid gap-6 md:grid-cols-3">
           {TESTIMONIALS.map((t) => (
@@ -459,7 +468,10 @@ function Testimonials() {
                   className="flex h-10 w-10 items-center justify-center rounded-full text-sm font-semibold text-white"
                   style={{ background: "var(--gradient-brand)" }}
                 >
-                  {t.name.split(" ").map((n) => n[0]).join("")}
+                  {t.name
+                    .split(" ")
+                    .map((n) => n[0])
+                    .join("")}
                 </div>
                 <div>
                   <div className="text-sm font-semibold">{t.name}</div>
@@ -502,7 +514,9 @@ function FAQSection() {
     <section id="faq" className="px-6 py-24">
       <div className="mx-auto max-w-3xl">
         <div className="text-center">
-          <Badge variant="secondary" className="mb-4">FAQ</Badge>
+          <Badge variant="secondary" className="mb-4">
+            FAQ
+          </Badge>
           <h2 className="text-4xl font-bold tracking-tight sm:text-5xl">Frequently asked</h2>
         </div>
         <Accordion type="single" collapsible className="mt-10">
@@ -524,7 +538,9 @@ function Contact() {
     <section id="contact" className="px-6 py-24">
       <div className="mx-auto grid max-w-6xl gap-12 lg:grid-cols-2">
         <div>
-          <Badge variant="secondary" className="mb-4">Contact</Badge>
+          <Badge variant="secondary" className="mb-4">
+            Contact
+          </Badge>
           <h2 className="text-4xl font-bold tracking-tight sm:text-5xl">Let's talk</h2>
           <p className="mt-4 text-muted-foreground">
             Questions, partnerships or feedback — we read every message.
@@ -640,7 +656,9 @@ function Footer() {
             <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
               {col.links.map((l) => (
                 <li key={l}>
-                  <a href="#" className="hover:text-foreground">{l}</a>
+                  <a href="#" className="hover:text-foreground">
+                    {l}
+                  </a>
                 </li>
               ))}
             </ul>
