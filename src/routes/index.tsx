@@ -527,7 +527,7 @@ function Contact() {
               >
                 <Mail className="h-4 w-4" />
               </div>
-              hello@campusai.app
+              samyakdongare244@gmail.com
             </div>
             <div className="flex items-center gap-3">
               <div
