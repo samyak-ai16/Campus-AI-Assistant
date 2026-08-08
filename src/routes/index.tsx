@@ -63,13 +63,13 @@ function AnimatedBackground() {
         className="absolute inset-0"
         style={{ background: "var(--gradient-hero)" }}
       />
-      <div className="absolute -top-40 -left-20 h-[500px] w-[500px] rounded-full bg-primary/25 blur-3xl animate-pulse" />
+      <div className="absolute -top-40 -left-20 h-500px w-500px rounded-full bg-primary/25 blur-3xl animate-pulse" />
       <div
-        className="absolute top-1/3 -right-32 h-[600px] w-[600px] rounded-full blur-3xl animate-pulse"
+        className="absolute top-1/3 -right-32 h-600px w-600px rounded-full blur-3xl animate-pulse"
         style={{ background: "oklch(0.72 0.18 195 / 0.25)", animationDelay: "1.5s" }}
       />
       <div
-        className="absolute bottom-0 left-1/3 h-[400px] w-[400px] rounded-full blur-3xl animate-pulse"
+        className="absolute bottom-0 left-1/3 h-400px w-400px rounded-full blur-3xl animate-pulse"
         style={{ background: "oklch(0.66 0.2 340 / 0.2)", animationDelay: "3s" }}
       />
       <svg
@@ -208,7 +208,7 @@ function ChatbotPreview() {
     { role: "user", text: "Any classes tomorrow morning?" },
     {
       role: "ai",
-      text: "Yes — you have **Operating Systems** at 9:00 AM in Lab-2 with Prof. Sharma, followed by **Compiler Design** at 10:30 AM.",
+      text: "Yes — you have **Internet of Things** at 10:20 AM in Room VS-009 with Prof. Siddharth Ghosh, followed by **Machine Learning** at 11:20 AM.",
     },
   ];
   const [visible, setVisible] = useState(0);
