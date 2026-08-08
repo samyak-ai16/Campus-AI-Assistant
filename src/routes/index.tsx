@@ -414,7 +414,7 @@ const TESTIMONIALS = [
     text: "CampusAI replaced three apps for me. Attendance, timetable and notices in one chat — brilliant.",
   },
   {
-    name: "Samyak Dongre",
+    name: "Akansha Ambadkar",
     role: "IT, 3rd Sem",
     text: "The AI answers before I even finish typing. Feels like having a senior on call 24/7.",
   },
