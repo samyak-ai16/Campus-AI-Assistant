@@ -1,0 +1,12 @@
+{
+  "name": "CampusAI — Intelligent College Companion",
+  "short_name": "CampusAI",
+  "description": "Your AI-powered college assistant for attendance, timetables, syllabus, exams and more.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0b0b1a",
+  "theme_color": "#6d5cf8",
+  "icons": [
+    { "src": "/favicon.ico", "sizes": "any", "type": "image/x-icon" }
+  ]
+}
