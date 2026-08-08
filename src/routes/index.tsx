@@ -426,12 +426,12 @@ const TESTIMONIALS = [
   {
     name: "Bhoomi Ingale",
     role: "CSE, 7th Sem",
-    text: "The attendance warnings saved me twice this semester. Genuinely useful.",
+    text: "The attendance alerts are a lifesaver. CampusAI makes it much easier to stay updated and avoid missing important information.",
   },
   {
     name: "Shrawani Ahirkar",
     role: "CSE, 3rd Sem",
-    text: "The attendance warnings saved me twice this semester. Genuinely useful.",
+    text: "CampusAI helped me keep track of important notices and upcoming exams. Simple, fast and actually useful.",
   },
 ];
 
