@@ -1,9 +1,12 @@
 import fs from "fs";
+import path from "path";
 import { createClient } from "@supabase/supabase-js";
 import { pipeline } from "@xenova/transformers";
 import dotenv from "dotenv";
 
+// Load standard .env first, then fallback/override with .env.local
 dotenv.config();
+dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 
 const SUPABASE_URL = process.env.VITE_SUPABASE_URL;
 const SUPABASE_KEY = process.env.VITE_SUPABASE_ANON_KEY;
@@ -11,7 +14,9 @@ const SUPABASE_KEY = process.env.VITE_SUPABASE_ANON_KEY;
 console.log("🚀 Starting Local Embedding & Text Upload Script...");
 
 if (!SUPABASE_URL || !SUPABASE_KEY) {
-  console.error("❌ ERROR: Missing Supabase environment variables in .env!");
+  console.error("❌ ERROR: Missing Supabase environment variables in .env or .env.local!");
+  console.error("DEBUG -> SUPABASE_URL:", SUPABASE_URL);
+  console.error("DEBUG -> Current Dir:", process.cwd());
   process.exit(1);
 }
 

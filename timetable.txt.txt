@@ -1,0 +1,76 @@
+JAIDEV EDUCATION SOCIETY'S
+J D COLLEGE OF ENGINEERING AND MANAGEMENT
+KATOL ROAD, NAGPUR
+Department of Computer Science & Engineering
+Session: 2026-27
+
+==================================================
+MID SEM -1 EXAMINATION TIME TABLE
+Branch / Semester: CSE / 5th Sem
+Date: 31/07/2026
+==================================================
+
+1. Date: 10/08/2026 | Time: 10:20 am to 11.20 am
+   Subject: Database Management System (DBMS) [CS5T001]
+
+2. Date: 11/08/2026 | Time: 10:20 am to 11.20 am
+   Subject: Machine Learning (ML) [CS5T002]
+
+3. Date: 12/08/2026 | Time: 10:20 am to 11.20 am
+   Subject: Internet of Things (IOT) [CS5T003]
+
+4. Date: 13/08/2026 | Time: Timely Scheduled - Given by TnP
+   Subject: JDCAP-III: Placement Preparation Training [CS5T004]
+
+5. Date: 14/08/2026 | Time: 10:20 am to 11.20 am
+   Subject: PEC-I (BT/CC/IG) [CS5E001]
+
+6. Date: 17/08/2026 | Time: 10:20 am to 11.20 am
+   Subject: PEC-II (BDAT/RJS/CF) [CS5E002]
+
+7. Date: 18/08/2026 | Time: 10:20 am to 11.20 am
+   Subject: MDM-III (Prompt Engineering) [CS5M003]
+
+8. Date: 19/08/2026 | Time: 10:20 am to 11.20 am
+   Subject: Open Elective -III [CS5O003]
+
+9. Date: 20/08/2026 | Time: 10:20 am to 11.20 am
+   Subject: MDM-IV (Ethics, Bias & Safety in LLM) [CS5M004]
+
+
+==================================================
+INTERNAL-1 PRACTICAL EXAMINATION TIME TABLE
+Session: 2026-27
+==================================================
+
+--- Branch / Semester: CSE-A / 5th Sem (Date: 01/08/2026) ---
+1. Date: 21/08/2026 (Friday) | Time: 10:20 am To 12:20 pm | Batches: Batch 1, Batch 2
+   Subject: Database Management System Lab | Lab: NL-110 | Examiners: Prof. Shubhangi Banait / Prof. Yogita Maske
+
+2. Date: 25/08/2026 (Tuesday) | Time: 10:20 am To 12:20 pm | Batches: Batch 1, Batch 2
+   Subject: Machine Learning Lab | Lab: TS-214 | Examiners: Mr. Om Butle / Prof. Dipti Khobragade
+
+3. Date: 25/08/2026 (Tuesday) | Time: 01:00 pm onwards
+   Subject: MiniProject | Examiner: Prof. Anuja Ghasad
+
+
+--- Branch / Semester: CSE-B / 5th Sem (Date: 01/08/2026) ---
+1. Date: 20/08/2026 (Thursday) | Time: 01:00 pm to 03:00 pm | Batches: Batch 1, Batch 2
+   Subject: Machine Learning Lab | Lab: TS-002 | Examiners: Mr. Om Butle / Prof. Dipti Khobragade
+
+2. Date: 21/08/2026 (Friday) | Time: 03:15 pm to 05:15 pm | Batches: Batch 1, Batch 2
+   Subject: Database Management System Lab | Lab: NL-110 | Examiners: Prof. Shubhangi Banait / Prof. Yogita Maske
+
+3. Date: 25/08/2026 (Tuesday) | Time: 10:20 am onwards
+   Subject: MiniProject | Examiner: Prof. Anuja Ghasad
+
+
+--- Branch / Semester: CSE-C / 5th Sem (Date: 01/08/2026) ---
+1. Date: 21/08/2026 (Friday) | Time: 01:00 pm to 03:00 pm | Batches: Batch 1, Batch 2
+   Subject: Machine Learning Lab | Lab: TS-002 | Examiners: Mr. Om Butle / Prof. Dipti Khobragade
+
+2. Date: 25/08/2026 (Tuesday) | Time: 10:20 am onwards
+   Subject: MiniProject | Examiner: Prof. Anuja Ghasad
+
+3. Date: 27/08/2026 (Thursday) | Time: 10:20 am to 12:20 pm | Batches: Batch 1, Batch 2
+   Subject: Database Management System Lab | Lab: NL-110 | Examiners: Prof. Shubhangi Banait / Prof. Yogita Maske
