@@ -89,9 +89,9 @@ export const chatCompletion = createServerFn({ method: "POST" })
         parts: [{ text: msg.content }],
       }));
 
-    // 7. Request completion using active model alias
+// 7. Request completion using active model alias
 const response = await ai.models.generateContent({
-  model: "gemini-1.5-flash", // 👈 Change "gemini-2.5-flash" to "gemini-1.5-flash"
+  model: "gemini-2.5-flash",
   contents: formattedMessages,
   config: {
     systemInstruction:
