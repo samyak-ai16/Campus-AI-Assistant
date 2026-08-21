@@ -34,6 +34,15 @@ export const chatCompletion = createServerFn({ method: "POST" })
       process.env.VITE_SUPABASE_ANON_KEY ||
       (import.meta as any).env?.VITE_SUPABASE_ANON_KEY;
 
+    // Server log to verify key availability during runtime requests
+    console.log("Env Check:", {
+      hasKey: !!key,
+      procGemini: !!process.env.GEMINI_API_KEY,
+      procViteGemini: !!process.env.VITE_GEMINI_API_KEY,
+      metaGemini: !!(import.meta as any).env?.GEMINI_API_KEY,
+      metaViteGemini: !!(import.meta as any).env?.VITE_GEMINI_API_KEY,
+    });
+
     if (!key) throw new Error("GEMINI_API_KEY is missing from environment variables (.env)");
     if (!supabaseUrl || !supabaseKey) throw new Error("Supabase credentials missing from environment variables (.env)");
 
@@ -82,7 +91,7 @@ export const chatCompletion = createServerFn({ method: "POST" })
 
     // 7. Request completion using active model alias
     const response = await ai.models.generateContent({
-      model: "gemini-3.5-flash",
+      model: "gemini-2.5-flash",
       contents: formattedMessages,
       config: {
         systemInstruction:
