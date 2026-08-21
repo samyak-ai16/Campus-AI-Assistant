@@ -89,20 +89,30 @@ export const chatCompletion = createServerFn({ method: "POST" })
         parts: [{ text: msg.content }],
       }));
 
-// 7. Request completion using active model alias
-const response = await ai.models.generateContent({
-  model: "gemini-3.6-flash",
-  contents: formattedMessages,
-  config: {
-    systemInstruction:
-      "You are CampusAI, a friendly and helpful assistant for college students. " +
-      "Use the provided official college document context below to answer the student's question accurately. " +
-      "If the answer is found in the context, cite facts directly. If not found, inform the student and answer as a general college helper.\n\n" +
-      `OFFICIAL COLLEGE CONTEXT:\n${contextText}`,
-  },
-});
+// 7. Request completion with automatic fallback for high demand (503)
+const fallbackModels = ["gemini-3.6-flash", "gemini-2.5-flash", "gemini-1.5-flash"];
+let response: any = null;
 
-    const content = response.text ?? "Sorry, I couldn't answer that.";
+for (const modelName of fallbackModels) {
+  try {
+    response = await ai.models.generateContent({
+      model: modelName,
+      contents: formattedMessages,
+      config: {
+        systemInstruction:
+          "You are CampusAI, a friendly and helpful assistant for college students. " +
+          "Use the provided official college document context below to answer the student's question accurately. " +
+          "If the answer is found in the context, cite facts directly. If not found, inform the student and answer as a general college helper.\n\n" +
+          `OFFICIAL COLLEGE CONTEXT:\n${contextText}`,
+      },
+    });
+    if (response?.text) break; // Successfully generated response
+  } catch (err: any) {
+    console.warn(`Model ${modelName} failed, attempting next fallback...`, err?.message);
+  }
+}
 
-    return { content };
+const content = response?.text ?? "The AI service is currently experiencing high demand. Please try asking again in a moment.";
+
+return { content };
   });
