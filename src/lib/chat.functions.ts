@@ -90,17 +90,17 @@ export const chatCompletion = createServerFn({ method: "POST" })
       }));
 
     // 7. Request completion using active model alias
-    const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
-      contents: formattedMessages,
-      config: {
-        systemInstruction:
-          "You are CampusAI, a friendly and helpful assistant for college students. " +
-          "Use the provided official college document context below to answer the student's question accurately. " +
-          "If the answer is found in the context, cite facts directly. If not found, inform the student and answer as a general college helper.\n\n" +
-          `OFFICIAL COLLEGE CONTEXT:\n${contextText}`,
-      },
-    });
+const response = await ai.models.generateContent({
+  model: "gemini-1.5-flash", // 👈 Change "gemini-2.5-flash" to "gemini-1.5-flash"
+  contents: formattedMessages,
+  config: {
+    systemInstruction:
+      "You are CampusAI, a friendly and helpful assistant for college students. " +
+      "Use the provided official college document context below to answer the student's question accurately. " +
+      "If the answer is found in the context, cite facts directly. If not found, inform the student and answer as a general college helper.\n\n" +
+      `OFFICIAL COLLEGE CONTEXT:\n${contextText}`,
+  },
+});
 
     const content = response.text ?? "Sorry, I couldn't answer that.";
 
