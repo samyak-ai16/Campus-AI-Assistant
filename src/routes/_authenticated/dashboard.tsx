@@ -100,15 +100,15 @@ function Dashboard() {
             <TrendingUp className="h-5 w-5 text-primary" />
           </div>
           <div className="mt-4 h-56">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={WEEKLY_ACTIVITY}>
-                <XAxis dataKey="day" tickLine={false} axisLine={false} className="text-xs" />
-                <YAxis tickLine={false} axisLine={false} className="text-xs" />
-                <Tooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 8 }} />
-                <Bar dataKey="hours" fill="oklch(0.58 0.22 285)" radius={[6, 6, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
+  <ResponsiveContainer width="100%" height="100%">
+    <BarChart data={WEEKLY_ACTIVITY}>
+      <XAxis dataKey="day" tickLine={false} axisLine={false} className="text-xs" />
+      <YAxis tickLine={false} axisLine={false} className="text-xs" />
+      <Tooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 8 }} />
+      <Bar dataKey="hours" fill="hsl(var(--primary))" radius={[6, 6, 0, 0]} />
+    </BarChart>
+  </ResponsiveContainer>
+</div>
         </Card>
 
         <Card className="p-6">
