@@ -4,7 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Send, Sparkles, User, Bot, Loader2 } from "lucide-react";
+import { Send, Sparkles, User, Bot, Loader2, BookOpen, ChevronDown, ChevronUp } from "lucide-react";
 import { chatCompletion } from "@/lib/chat.functions";
 import ReactMarkdown from "react-markdown";
 import { toast } from "sonner";
@@ -19,22 +19,39 @@ export const Route = createFileRoute("/_authenticated/chat")({
   component: ChatPage,
 });
 
-type Msg = { role: "user" | "assistant"; content: string };
+type SourceDoc = {
+  id?: string;
+  title: string;
+  content: string;
+  category: string;
+  similarity: number;
+};
+
+type Msg = {
+  role: "user" | "assistant";
+  content: string;
+  sources?: SourceDoc[];
+};
 
 const SUGGESTIONS = [
-  "Explain the difference between processes and threads",
-  "How can I improve my attendance strategy?",
-  "Give me a study plan for my upcoming exams",
-  "Summarize normalization in DBMS",
+  "When are the upcoming MSE exams?",
+  "What is the timetable for tomorrow?",
+  "Who is the faculty for DBMS?",
+  "Summarize the college attendance rules",
 ];
 
 function ChatPage() {
   const send = useServerFn(chatCompletion);
   const [messages, setMessages] = useState<Msg[]>([
-    { role: "assistant", content: "Hi! I'm CampusAI. Ask me anything about your studies, timetable, exams, or college life." },
+    {
+      role: "assistant",
+      content:
+        "Hi! I'm CampusAI, your college study and campus life companion. Ask me anything about your syllabus, timetable, exams, notices, or college rules.",
+    },
   ]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const [expandedSources, setExpandedSources] = useState<Record<number, boolean>>({});
   const endRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -49,13 +66,24 @@ function ChatPage() {
     setLoading(true);
     try {
       const res = await send({ data: { messages: next } });
-      setMessages((m) => [...m, { role: "assistant", content: res.content }]);
+      setMessages((m) => [
+        ...m,
+        {
+          role: "assistant",
+          content: res.content,
+          sources: res.sources as SourceDoc[] | undefined,
+        },
+      ]);
     } catch (e: any) {
-      toast.error(e?.message ?? "Failed to send");
+      toast.error(e?.message ?? "Failed to send message");
     } finally {
       setLoading(false);
     }
   }
+
+  const toggleSource = (index: number) => {
+    setExpandedSources((prev) => ({ ...prev, [index]: !prev[index] }));
+  };
 
   return (
     <div className="mx-auto flex h-[calc(100vh-8rem)] max-w-4xl flex-col">
@@ -64,7 +92,7 @@ function ChatPage() {
           <Sparkles className="h-6 w-6 text-primary" />
           CampusAI
         </h1>
-        <p className="text-muted-foreground">Your intelligent study companion</p>
+        <p className="text-muted-foreground">Your intelligent study companion with verified campus knowledge</p>
       </div>
 
       <Card className="flex flex-1 flex-col overflow-hidden">
@@ -80,13 +108,53 @@ function ChatPage() {
                 </div>
               )}
               <div
-                className={`max-w-[80%] rounded-2xl px-4 py-2.5 text-sm ${
+                className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-sm ${
                   m.role === "user" ? "bg-primary text-primary-foreground" : "bg-muted"
                 }`}
               >
                 {m.role === "assistant" ? (
-                  <div className="prose prose-sm max-w-none dark:prose-invert">
-                    <ReactMarkdown>{m.content}</ReactMarkdown>
+                  <div>
+                    <div className="prose prose-sm max-w-none dark:prose-invert">
+                      <ReactMarkdown>{m.content}</ReactMarkdown>
+                    </div>
+
+                    {/* Sources Badge / Details */}
+                    {m.sources && m.sources.length > 0 && (
+                      <div className="mt-3 border-t border-border/40 pt-2 text-xs">
+                        <button
+                          onClick={() => toggleSource(i)}
+                          className="flex items-center gap-1.5 font-medium text-primary hover:underline"
+                        >
+                          <BookOpen className="h-3.5 w-3.5" />
+                          <span>
+                            {m.sources.length} Official Source{m.sources.length > 1 ? "s" : ""} Referenced
+                          </span>
+                          {expandedSources[i] ? (
+                            <ChevronUp className="h-3 w-3 ml-0.5" />
+                          ) : (
+                            <ChevronDown className="h-3 w-3 ml-0.5" />
+                          )}
+                        </button>
+
+                        {expandedSources[i] && (
+                          <div className="mt-2 space-y-2 rounded-lg bg-background/70 p-2.5 text-muted-foreground">
+                            {m.sources.map((src, srcIdx) => (
+                              <div key={srcIdx} className="border-b border-border/30 pb-1.5 last:border-0 last:pb-0">
+                                <div className="flex items-center justify-between font-semibold text-foreground">
+                                  <span>{src.title}</span>
+                                  <span className="rounded bg-primary/10 px-1.5 py-0.5 text-[10px] text-primary">
+                                    {Math.round((src.similarity || 0) * 100)}% match
+                                  </span>
+                                </div>
+                                <p className="mt-1 line-clamp-2 text-[11px] leading-relaxed italic">
+                                  "{src.content}"
+                                </p>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
                 ) : (
                   m.content
@@ -134,7 +202,10 @@ function ChatPage() {
 
         <form
           className="flex gap-2 border-t p-4"
-          onSubmit={(e) => { e.preventDefault(); submit(input); }}
+          onSubmit={(e) => {
+            e.preventDefault();
+            submit(input);
+          }}
         >
           <Input
             value={input}

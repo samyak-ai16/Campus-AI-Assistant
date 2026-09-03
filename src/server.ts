@@ -2,6 +2,8 @@ import "./lib/error-capture";
 
 import { consumeLastCapturedError } from "./lib/error-capture";
 import { renderErrorPage } from "./lib/error-page";
+import { handleUploadKnowledgeRequest } from "./lib/upload-knowledge";
+import { handleApiChatRequest } from "./lib/api-chat";
 
 type ServerEntry = {
   fetch: (request: Request, env: unknown, ctx: unknown) => Promise<Response> | Response;
@@ -44,8 +46,37 @@ function isH3SwallowedErrorBody(body: string): boolean {
   }
 }
 
+function handleCorsPreflight(): Response {
+  return new Response(null, {
+    status: 204,
+    headers: {
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Requested-With",
+    },
+  });
+}
+
 export default {
   async fetch(request: Request, env: unknown, ctx: unknown) {
+    const url = new URL(request.url);
+
+    // Route: /api/admin/upload-knowledge
+    if (url.pathname === "/api/admin/upload-knowledge") {
+      if (request.method === "OPTIONS") return handleCorsPreflight();
+      const res = await handleUploadKnowledgeRequest(request);
+      res.headers.set("Access-Control-Allow-Origin", "*");
+      return res;
+    }
+
+    // Route: /api/chat
+    if (url.pathname === "/api/chat") {
+      if (request.method === "OPTIONS") return handleCorsPreflight();
+      const res = await handleApiChatRequest(request);
+      res.headers.set("Access-Control-Allow-Origin", "*");
+      return res;
+    }
+
     try {
       const handler = await getServerEntry();
       const response = await handler.fetch(request, env, ctx);

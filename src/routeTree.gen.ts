@@ -32,6 +32,7 @@ import { Route as AdminAnalyticsRouteImport } from './routes/admin/analytics'
 import { Route as AdminEventsRouteImport } from './routes/admin/events'
 import { Route as AdminExamsRouteImport } from './routes/admin/exams'
 import { Route as AdminFacultyRouteImport } from './routes/admin/faculty'
+import { Route as AdminKnowledgeRouteImport } from './routes/admin/knowledge'
 import { Route as AdminNoticesRouteImport } from './routes/admin/notices'
 import { Route as AdminStudentsRouteImport } from './routes/admin/students'
 import { Route as AdminSubjectsRouteImport } from './routes/admin/subjects'
@@ -152,6 +153,11 @@ const AdminFacultyRoute = AdminFacultyRouteImport.update({
   path: '/faculty',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminKnowledgeRoute = AdminKnowledgeRouteImport.update({
+  id: '/knowledge',
+  path: '/knowledge',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminNoticesRoute = AdminNoticesRouteImport.update({
   id: '/notices',
   path: '/notices',
@@ -195,6 +201,7 @@ export interface FileRoutesByFullPath {
   '/admin/events': typeof AdminEventsRoute
   '/admin/exams': typeof AdminExamsRoute
   '/admin/faculty': typeof AdminFacultyRoute
+  '/admin/knowledge': typeof AdminKnowledgeRoute
   '/admin/notices': typeof AdminNoticesRoute
   '/admin/students': typeof AdminStudentsRoute
   '/admin/subjects': typeof AdminSubjectsRoute
@@ -222,6 +229,7 @@ export interface FileRoutesByTo {
   '/admin/events': typeof AdminEventsRoute
   '/admin/exams': typeof AdminExamsRoute
   '/admin/faculty': typeof AdminFacultyRoute
+  '/admin/knowledge': typeof AdminKnowledgeRoute
   '/admin/notices': typeof AdminNoticesRoute
   '/admin/students': typeof AdminStudentsRoute
   '/admin/subjects': typeof AdminSubjectsRoute
@@ -252,6 +260,7 @@ export interface FileRoutesById {
   '/admin/events': typeof AdminEventsRoute
   '/admin/exams': typeof AdminExamsRoute
   '/admin/faculty': typeof AdminFacultyRoute
+  '/admin/knowledge': typeof AdminKnowledgeRoute
   '/admin/notices': typeof AdminNoticesRoute
   '/admin/students': typeof AdminStudentsRoute
   '/admin/subjects': typeof AdminSubjectsRoute
@@ -282,6 +291,7 @@ export interface FileRouteTypes {
     | '/admin/events'
     | '/admin/exams'
     | '/admin/faculty'
+    | '/admin/knowledge'
     | '/admin/notices'
     | '/admin/students'
     | '/admin/subjects'
@@ -309,6 +319,7 @@ export interface FileRouteTypes {
     | '/admin/events'
     | '/admin/exams'
     | '/admin/faculty'
+    | '/admin/knowledge'
     | '/admin/notices'
     | '/admin/students'
     | '/admin/subjects'
@@ -338,6 +349,7 @@ export interface FileRouteTypes {
     | '/admin/events'
     | '/admin/exams'
     | '/admin/faculty'
+    | '/admin/knowledge'
     | '/admin/notices'
     | '/admin/students'
     | '/admin/subjects'
@@ -516,6 +528,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminFacultyRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/knowledge': {
+      id: '/admin/knowledge'
+      path: '/knowledge'
+      fullPath: '/admin/knowledge'
+      preLoaderRoute: typeof AdminKnowledgeRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/notices': {
       id: '/admin/notices'
       path: '/notices'
@@ -587,6 +606,7 @@ interface AdminRouteChildren {
   AdminEventsRoute: typeof AdminEventsRoute
   AdminExamsRoute: typeof AdminExamsRoute
   AdminFacultyRoute: typeof AdminFacultyRoute
+  AdminKnowledgeRoute: typeof AdminKnowledgeRoute
   AdminNoticesRoute: typeof AdminNoticesRoute
   AdminStudentsRoute: typeof AdminStudentsRoute
   AdminSubjectsRoute: typeof AdminSubjectsRoute
@@ -600,6 +620,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminEventsRoute: AdminEventsRoute,
   AdminExamsRoute: AdminExamsRoute,
   AdminFacultyRoute: AdminFacultyRoute,
+  AdminKnowledgeRoute: AdminKnowledgeRoute,
   AdminNoticesRoute: AdminNoticesRoute,
   AdminStudentsRoute: AdminStudentsRoute,
   AdminSubjectsRoute: AdminSubjectsRoute,

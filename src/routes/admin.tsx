@@ -2,7 +2,7 @@ import { createFileRoute, Outlet, Link, useRouterState, useNavigate } from "@tan
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Shield, LayoutDashboard, Users, GraduationCap, BookOpen, Bell, PartyPopper, ClipboardList, MessageSquare, ArrowLeft, Loader2, Brain, Calendar, CalendarDays } from "lucide-react";
+import { Shield, LayoutDashboard, Users, GraduationCap, BookOpen, Bell, PartyPopper, ClipboardList, MessageSquare, ArrowLeft, Loader2, Brain, Calendar, CalendarDays, Database } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/admin")({
@@ -11,6 +11,7 @@ export const Route = createFileRoute("/admin")({
 
 const NAV = [
   { to: "/admin", label: "Overview", icon: LayoutDashboard, exact: true },
+  { to: "/admin/knowledge", label: "Knowledge Base (RAG)", icon: Database },
   { to: "/admin/students", label: "Students", icon: Users },
   { to: "/admin/faculty", label: "Faculty", icon: GraduationCap },
   { to: "/admin/subjects", label: "Subjects", icon: BookOpen },
