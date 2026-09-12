@@ -8,15 +8,27 @@ export interface ChunkOptions {
   chunkOverlap?: number; // overlap characters between consecutive chunks (default 120)
 }
 
+// In-memory cache for query embeddings to eliminate repeated API latency (TTL 1 hour)
+const embeddingCache = new Map<string, { vector: number[]; expires: number }>();
+const MAX_CACHE_ENTRIES = 300;
+const CACHE_TTL_MS = 60 * 60 * 1000;
+
 /**
  * Generates a 1536-dimensional vector embedding for the given input text.
- * Uses Gemini API (gemini-embedding-001 or gemini-embedding-2 with outputDimensionality: 1536)
- * or OpenAI text-embedding-3-small / text-embedding-ada-002 if OPENAI_API_KEY is configured.
+ * Uses Gemini API (gemini-embedding-001 with outputDimensionality: 1536)
+ * with an in-memory cache for fast repeated query resolution.
  */
 export async function get1536Embedding(text: string): Promise<number[]> {
   const cleanText = text.trim().replace(/\s+/g, " ");
   if (!cleanText) {
     throw new Error("Cannot generate embedding for empty text.");
+  }
+
+  // 0. Check in-memory cache
+  const cacheKey = cleanText.toLowerCase();
+  const cached = embeddingCache.get(cacheKey);
+  if (cached && cached.expires > Date.now()) {
+    return cached.vector;
   }
 
   // 1. Check for OpenAI API Key first if user prefers OpenAI
@@ -43,6 +55,11 @@ export async function get1536Embedding(text: string): Promise<number[]> {
         const json = await response.json();
         const vector = json.data?.[0]?.embedding;
         if (Array.isArray(vector) && vector.length === 1536) {
+          if (embeddingCache.size > MAX_CACHE_ENTRIES) {
+            const firstKey = embeddingCache.keys().next().value;
+            if (firstKey) embeddingCache.delete(firstKey);
+          }
+          embeddingCache.set(cacheKey, { vector, expires: Date.now() + CACHE_TTL_MS });
           return vector;
         }
       }
@@ -81,6 +98,11 @@ export async function get1536Embedding(text: string): Promise<number[]> {
       const values = data?.embedding?.values;
 
       if (Array.isArray(values) && values.length === 1536) {
+        if (embeddingCache.size > MAX_CACHE_ENTRIES) {
+          const firstKey = embeddingCache.keys().next().value;
+          if (firstKey) embeddingCache.delete(firstKey);
+        }
+        embeddingCache.set(cacheKey, { vector: values, expires: Date.now() + CACHE_TTL_MS });
         return values;
       }
 
@@ -103,6 +125,11 @@ export async function get1536Embedding(text: string): Promise<number[]> {
     });
     const values = (sdkRes as any).embedding?.values || (sdkRes as any).embeddings?.[0]?.values;
     if (Array.isArray(values) && values.length === 1536) {
+      if (embeddingCache.size > MAX_CACHE_ENTRIES) {
+        const firstKey = embeddingCache.keys().next().value;
+        if (firstKey) embeddingCache.delete(firstKey);
+      }
+      embeddingCache.set(cacheKey, { vector: values, expires: Date.now() + CACHE_TTL_MS });
       return values;
     }
   } catch (err) {

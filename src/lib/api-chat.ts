@@ -15,8 +15,52 @@ export interface ChatResponsePayload {
   }>;
 }
 
+// In-memory cache for full Q&A responses (TTL: 10 minutes)
+const responseCache = new Map<string, { payload: ChatResponsePayload; expires: number }>();
+const MAX_RESPONSE_CACHE = 150;
+const RESPONSE_TTL_MS = 10 * 60 * 1000;
+
+// Singleton clients to reuse connections and avoid repeated SSL/TLS handshake latency
+let cachedAiClient: GoogleGenAI | null = null;
+let cachedAiKey: string | null = null;
+let cachedSupabaseClient: any = null;
+let cachedSupabaseUrl: string | null = null;
+let cachedSupabaseKey: string | null = null;
+
+function getAiClient(apiKey: string): GoogleGenAI {
+  if (!cachedAiClient || cachedAiKey !== apiKey) {
+    cachedAiClient = new GoogleGenAI({ apiKey });
+    cachedAiKey = apiKey;
+  }
+  return cachedAiClient;
+}
+
+function getSupabaseClient(url: string, key: string, authToken?: string) {
+  if (authToken) {
+    return createClient(url, key, {
+      auth: { persistSession: false, autoRefreshToken: false },
+      global: {
+        headers: {
+          Authorization: authToken.startsWith("Bearer ") ? authToken : `Bearer ${authToken}`,
+        },
+      },
+    });
+  }
+  if (!cachedSupabaseClient || cachedSupabaseUrl !== url || cachedSupabaseKey !== key) {
+    cachedSupabaseClient = createClient(url, key, {
+      auth: { persistSession: false, autoRefreshToken: false },
+    });
+    cachedSupabaseUrl = url;
+    cachedSupabaseKey = key;
+  }
+  return cachedSupabaseClient;
+}
+
+// Fast greeting / pleasantry regex for instant sub-second response
+const CASUAL_GREETING_REGEX = /^(hi|hello|hey|heya|howdy|good\s*(morning|afternoon|evening)|who\s*are\s*you|what\s*can\s*you\s*do|help|thanks|thank\s*you|bye|goodbye)[!?. ]*$/i;
+
 /**
- * Execute dynamic RAG retrieval and generate grounded completion.
+ * Execute dynamic RAG retrieval and generate grounded completion with high performance.
  */
 export async function generateRAGChatResponse(
   messages: ChatMessage[],
@@ -44,22 +88,36 @@ export async function generateRAGChatResponse(
     throw new Error("Supabase credentials missing from environment variables.");
   }
 
-  const supabase = createClient(supabaseUrl, supabaseKey, {
-    auth: { persistSession: false, autoRefreshToken: false },
-    global: authToken
-      ? {
-          headers: {
-            Authorization: authToken.startsWith("Bearer ")
-              ? authToken
-              : `Bearer ${authToken}`,
-          },
-        }
-      : undefined,
-  });
-
-  // Extract latest user message
+  // Extract latest user query
   const userMessages = messages.filter((m) => m.role === "user");
-  const lastUserMessage = userMessages[userMessages.length - 1]?.content ?? "";
+  const lastUserMessage = (userMessages[userMessages.length - 1]?.content ?? "").trim();
+  const cacheKey = lastUserMessage.toLowerCase();
+
+  // 1. FAST PATH: Check in-memory Q&A cache for instant return (<10ms)
+  const cachedResponse = responseCache.get(cacheKey);
+  if (cachedResponse && cachedResponse.expires > Date.now()) {
+    return cachedResponse.payload;
+  }
+
+  // 2. FAST PATH: Casual greeting bypass (instant sub-second answer without vector lookup)
+  if (CASUAL_GREETING_REGEX.test(lastUserMessage)) {
+    let greetingAnswer = "Hello! I'm CampusAI, your college assistant. How can I help you today? You can ask me about tomorrow's timetable, upcoming MSE exam dates, attendance rules, or faculty details.";
+    if (/^(thanks|thank\s*you)/i.test(lastUserMessage)) {
+      greetingAnswer = "You're very welcome! Feel free to ask if you need anything else regarding your classes, exams, or syllabus.";
+    } else if (/^(bye|goodbye)/i.test(lastUserMessage)) {
+      greetingAnswer = "Goodbye! Best of luck with your studies and have a great day!";
+    } else if (/who\s*are\s*you/i.test(lastUserMessage)) {
+      greetingAnswer = "I am CampusAI, your official college portal assistant. I have access to your verified campus timetable, MSE exam dates, attendance regulations, and faculty directory.";
+    }
+
+    const quickPayload: ChatResponsePayload = {
+      content: greetingAnswer,
+      sources: [],
+    };
+    return quickPayload;
+  }
+
+  const supabase = getSupabaseClient(supabaseUrl, supabaseKey, authToken);
 
   let matchedDocs: Array<{
     id?: string;
@@ -71,63 +129,56 @@ export async function generateRAGChatResponse(
 
   let contextText = "No relevant campus knowledge records found.";
 
-  if (lastUserMessage.trim()) {
+  if (lastUserMessage) {
     try {
-      // 1. Generate 1536-dimensional query embedding
-      console.log(`[RAG] Generating 1536-dim embedding for query: "${lastUserMessage.substring(0, 60)}..."`);
+      // 3. Fast cached 1536-dimensional query embedding
       const queryVector = await get1536Embedding(lastUserMessage);
 
-      // 2. Query Supabase vector similarity search via match_knowledge RPC
+      // 4. Query Supabase vector similarity search via match_knowledge RPC (top 3 matches for minimal latency)
       const { data, error } = await supabase.rpc("match_knowledge", {
         query_embedding: queryVector,
-        match_threshold: 0.25,
-        match_count: 5,
+        match_threshold: 0.22,
+        match_count: 3,
       });
 
       if (error) {
-        console.warn("[RAG] Supabase match_knowledge error (table or RPC may need migration):", error.message);
+        console.warn("[RAG] Supabase match_knowledge warning:", error.message);
       } else if (data && data.length > 0) {
         matchedDocs = data;
         contextText = matchedDocs
           .map(
             (doc) =>
-              `[Document: ${doc.title} | Category: ${doc.category || "General"} | Relevance: ${Math.round(
-                (doc.similarity || 0) * 100,
-              )}%]\n${doc.content}`,
+              `[Document: ${doc.title} | Category: ${doc.category || "General"}]\n${doc.content}`,
           )
           .join("\n\n---\n\n");
-        console.log(`[RAG] Retrieved ${matchedDocs.length} matching knowledge chunk(s).`);
-      } else {
-        console.log("[RAG] No matching knowledge chunks exceeded threshold.");
       }
     } catch (err: any) {
       console.error("[RAG Retrieval Warning]:", err.message || err);
     }
   }
 
-  // 3. Prepare AI model and instruction
-  const ai = new GoogleGenAI({ apiKey: geminiKey });
+  // 5. Query Gemini with optimized concise token config and fast models
+  const ai = getAiClient(geminiKey);
 
   const systemInstruction =
     "You are CampusAI, an official, intelligent, and helpful college assistant for students.\n" +
-    "Your objective is to answer user queries accurately based strictly on the admin-provided campus knowledge below.\n\n" +
+    "Your objective is to answer user queries accurately based strictly on the campus knowledge below.\n\n" +
     "GUIDELINES:\n" +
-    "1. Base your answer strictly on the provided OFFICIAL CAMPUS KNOWLEDGE BASE context below.\n" +
-    "2. If the relevant facts are in the context, provide a direct, concise, and structured answer. Cite the document title when applicable.\n" +
-    "3. If the context does not contain enough information to answer the question, politely inform the student that this information is not found in the official campus records, and guide them to contact the relevant campus department.\n" +
-    "4. Never hallucinate, invent dates, policies, codes, or faculty names that are not in the context.\n" +
-    "5. Maintain a supportive, polite, and academic tone.\n\n" +
+    "1. Base your answer strictly on the OFFICIAL CAMPUS KNOWLEDGE BASE CONTEXT.\n" +
+    "2. Provide a direct, concise, and structured answer. Avoid unnecessary preamble.\n" +
+    "3. If the context does not contain enough information, politely inform the student that this information is not in the records and suggest contacting the department.\n" +
+    "4. Never hallucinate dates, policies, or faculty names.\n\n" +
     `OFFICIAL CAMPUS KNOWLEDGE BASE CONTEXT:\n${contextText}`;
 
-  // 4. Format messages for Gemini
-  const formattedMessages = messages
+  // Keep last 4 messages to preserve context while keeping token payload small and fast
+  const recentMessages = messages.slice(-4);
+  const formattedMessages = recentMessages
     .filter((msg) => msg.role !== "system")
     .map((msg) => ({
       role: msg.role === "assistant" ? "model" : "user",
       parts: [{ text: msg.content }],
     }));
 
-  // Ensure there is at least one message
   if (formattedMessages.length === 0) {
     formattedMessages.push({
       role: "user",
@@ -135,23 +186,20 @@ export async function generateRAGChatResponse(
     });
   }
 
-  const fallbackModels = [
-    "gemini-3.6-flash",
-    "gemini-3.7-flash",
-    "gemini-2.5-flash",
-    "gemini-1.5-flash",
-  ];
-
+  // Active production models (gemini-3.6-flash is fastest and most stable)
+  const activeModels = ["gemini-3.6-flash", "gemini-3.7-flash"];
   let response: any = null;
   let lastError: Error | null = null;
 
-  for (const modelName of fallbackModels) {
+  for (const modelName of activeModels) {
     try {
       response = await ai.models.generateContent({
         model: modelName,
         contents: formattedMessages,
         config: {
           systemInstruction,
+          maxOutputTokens: 650,
+          temperature: 0.2,
         },
       });
       if (response?.text) {
@@ -159,20 +207,31 @@ export async function generateRAGChatResponse(
       }
     } catch (err: any) {
       lastError = err;
-      console.warn(`[Chat] Model ${modelName} failed, trying fallback:`, err?.message);
+      console.warn(`[Chat] Model ${modelName} issue:`, err?.message);
     }
   }
 
   const content =
     response?.text ??
     (lastError
-      ? `The AI service is currently unavailable (${lastError.message}). Please try again shortly.`
+      ? `The AI service is currently busy (${lastError.message}). Please try again in a moment.`
       : "The AI service is currently experiencing high demand. Please try asking again in a moment.");
 
-  return {
+  const payload: ChatResponsePayload = {
     content,
     sources: matchedDocs,
   };
+
+  // Cache response for 10 minutes
+  if (response?.text && cacheKey) {
+    if (responseCache.size > MAX_RESPONSE_CACHE) {
+      const firstKey = responseCache.keys().next().value;
+      if (firstKey) responseCache.delete(firstKey);
+    }
+    responseCache.set(cacheKey, { payload, expires: Date.now() + RESPONSE_TTL_MS });
+  }
+
+  return payload;
 }
 
 /**
