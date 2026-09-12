@@ -134,11 +134,11 @@ export async function generateRAGChatResponse(
       // 3. Fast cached 1536-dimensional query embedding
       const queryVector = await get1536Embedding(lastUserMessage);
 
-      // 4. Query Supabase vector similarity search via match_knowledge RPC (top 3 matches for minimal latency)
+      // 4. Query Supabase vector similarity search via match_knowledge RPC
       const { data, error } = await supabase.rpc("match_knowledge", {
         query_embedding: queryVector,
-        match_threshold: 0.22,
-        match_count: 3,
+        match_threshold: 0.20,
+        match_count: 4,
       });
 
       if (error) {
@@ -157,7 +157,7 @@ export async function generateRAGChatResponse(
     }
   }
 
-  // 5. Query Gemini with optimized concise token config and fast models
+  // 5. Query Gemini with complete token config and fast models
   const ai = getAiClient(geminiKey);
 
   const systemInstruction =
@@ -165,9 +165,10 @@ export async function generateRAGChatResponse(
     "Your objective is to answer user queries accurately based strictly on the campus knowledge below.\n\n" +
     "GUIDELINES:\n" +
     "1. Base your answer strictly on the OFFICIAL CAMPUS KNOWLEDGE BASE CONTEXT.\n" +
-    "2. Provide a direct, concise, and structured answer. Avoid unnecessary preamble.\n" +
-    "3. If the context does not contain enough information, politely inform the student that this information is not in the records and suggest contacting the department.\n" +
-    "4. Never hallucinate dates, policies, or faculty names.\n\n" +
+    "2. Provide a complete, thorough, and well-structured answer. Always complete sentences and tables fully without cutting off.\n" +
+    "3. If the user asks for a specific exam timetable that is not in the context (e.g. Internal-2 / Mid Sem-2), explicitly clarify that the current official records only have schedules for Mid Sem-1 and Internal-1 Practical examinations, and that the Internal-2 schedule has not yet been announced or uploaded by the department.\n" +
+    "4. Never hallucinate, invent dates, or confuse Internal-1 with Internal-2.\n" +
+    "5. Maintain a supportive, polite, and academic tone.\n\n" +
     `OFFICIAL CAMPUS KNOWLEDGE BASE CONTEXT:\n${contextText}`;
 
   // Keep last 4 messages to preserve context while keeping token payload small and fast
@@ -198,7 +199,7 @@ export async function generateRAGChatResponse(
         contents: formattedMessages,
         config: {
           systemInstruction,
-          maxOutputTokens: 650,
+          maxOutputTokens: 3000,
           temperature: 0.2,
         },
       });
@@ -222,8 +223,9 @@ export async function generateRAGChatResponse(
     sources: matchedDocs,
   };
 
-  // Cache response for 10 minutes
-  if (response?.text && cacheKey) {
+  // Cache response for 10 minutes (only if fully completed, never if cut off by MAX_TOKENS)
+  const finishReason = response?.candidates?.[0]?.finishReason;
+  if (response?.text && cacheKey && finishReason !== "MAX_TOKENS") {
     if (responseCache.size > MAX_RESPONSE_CACHE) {
       const firstKey = responseCache.keys().next().value;
       if (firstKey) responseCache.delete(firstKey);
